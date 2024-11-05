@@ -13,3 +13,10 @@ CREATE TABLE IF NOT EXISTS inventory (
     threshold DECIMAL(10, 2) NOT NULL,
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+- Insert sample data
+INSERT INTO inventory (name, quantity, unit, threshold)
+VALUES 
+    (1, 'Beef Patty', 100, 'pcs', 20),
+    (2, 'Cheddar Cheese', 50, 'lbs', 5),
+    (3, 'Lettuce', 30, 'lbs', 10);
