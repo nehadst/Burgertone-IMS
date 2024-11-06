@@ -2,24 +2,28 @@ CREATE DATABASE IF NOT EXISTS burgertone_inventory;
 
 USE burgertone_inventory;
 
-
-CREATE TABLE IF NOT EXISTS Ingredients(
-	id INT auto_increment PRIMARY KEY,
-    NAME VARCHAR (255) NOT NULL,
-    UNIT VARCHAR(255) NOT NULL,
-    QUANTITY DECIMAL (10,2) NOT NULL,
-    THRESHOLD DECIMAL (10,2) NOT NULL);
-    
-CREATE TABLE IF NOT EXISTS MENU_ITEMS(
-	id INT auto_increment PRIMARY KEY,
+-- Create base tables first (no foreign keys)
+CREATE TABLE IF NOT EXISTS Ingredients (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     NAME VARCHAR(255) NOT NULL,
-    COMBO BOOLEAN);
-    
+    UNIT VARCHAR(255) NOT NULL,
+    QUANTITY DECIMAL(10,2) NOT NULL,
+    THRESHOLD DECIMAL(10,2) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Menu_Items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    NAME VARCHAR(255) NOT NULL,
+    COMBO BOOLEAN
+);
+
 CREATE TABLE IF NOT EXISTS Sides (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
-    default_side BOOLEAN DEFAULT FALSE);
-    
+    default_side BOOLEAN DEFAULT FALSE
+);
+
+-- Then create tables with foreign keys (after their referenced tables exist)
 CREATE TABLE IF NOT EXISTS Menu_Item_Ingredients (
     id INT AUTO_INCREMENT PRIMARY KEY,
     menu_item_id INT NOT NULL,
@@ -27,8 +31,9 @@ CREATE TABLE IF NOT EXISTS Menu_Item_Ingredients (
     quantity DECIMAL(10, 2) NOT NULL,
     unit VARCHAR(20),
     FOREIGN KEY (menu_item_id) REFERENCES Menu_Items(id),
-    FOREIGN KEY (ingredient_id) REFERENCES Ingredients(id));
-    
+    FOREIGN KEY (ingredient_id) REFERENCES Ingredients(id)
+);
+
 CREATE TABLE IF NOT EXISTS Combo_Orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     menu_item_id INT NOT NULL,
