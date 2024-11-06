@@ -1,20 +1,50 @@
--- Create the database
 CREATE DATABASE IF NOT EXISTS burgertone_inventory;
 
--- Use the database
 USE burgertone_inventory;
 
--- Create the Ingredients table
+
 CREATE TABLE IF NOT EXISTS Ingredients(
 	id INT auto_increment PRIMARY KEY,
     NAME VARCHAR (255) NOT NULL,
     UNIT VARCHAR(255) NOT NULL,
     QUANTITY DECIMAL (10,2) NOT NULL,
     THRESHOLD DECIMAL (10,2) NOT NULL);
+    
+CREATE TABLE IF NOT EXISTS MENU_ITEMS(
+	id INT auto_increment PRIMARY KEY,
+    NAME VARCHAR(255) NOT NULL,
+    COMBO BOOLEAN);
+    
+CREATE TABLE IF NOT EXISTS Sides (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    default_side BOOLEAN DEFAULT FALSE);
+    
+CREATE TABLE IF NOT EXISTS Menu_Item_Ingredients (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    menu_item_id INT NOT NULL,
+    ingredient_id INT NOT NULL,
+    quantity DECIMAL(10, 2) NOT NULL,
+    unit VARCHAR(20),
+    FOREIGN KEY (menu_item_id) REFERENCES Menu_Items(id),
+    FOREIGN KEY (ingredient_id) REFERENCES Ingredients(id));
+    
+CREATE TABLE IF NOT EXISTS Combo_Orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    menu_item_id INT NOT NULL,
+    side_id INT,
+    quantity INT NOT NULL,
+    FOREIGN KEY (menu_item_id) REFERENCES Menu_Items(id),
+    FOREIGN KEY (side_id) REFERENCES Sides(id)
+);
 
--- Insert sample data
-INSERT INTO inventory (name, quantity, unit, threshold)
-VALUES 
-    (1, 'Beef Patty', 100, 'pcs', 20),
-    (2, 'Cheddar Cheese', 50, 'lbs', 5),
-    (3, 'Lettuce', 30, 'lbs', 10);
+CREATE TABLE IF NOT EXISTS Inventory_Transactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ingredient_id INT NOT NULL,
+    change_by DECIMAL(10, 2) NOT NULL,
+    unit VARCHAR(20) NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    notes TEXT,
+    FOREIGN KEY (ingredient_id) REFERENCES Ingredients(id)
+);
+
