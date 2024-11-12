@@ -70,21 +70,14 @@ const ingredientRoutes = require('./routes/ingredients');
 const menuRoutes = require('./routes/menuItems');
 const reportRoutes = require('./routes/reports');
 
+// Add CORS middleware
+const cors = require('cors');
+app.use(cors());
+
 // Add routes
 app.use('/api/ingredients', ingredientRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/reports', reportRoutes);
-
-// WebSocket setup for real-time notifications
-const WebSocket = require('ws');
-const wss = new WebSocket.Server({ port: 8080 });
-
-wss.on('connection', function connection(ws) {
-    console.log('New client connected');
-    ws.on('message', function incoming(message) {
-        console.log('received: %s', message);
-    });
-});
 
 // Middleware to check inventory levels
 app.use(async (req, res, next) => {
