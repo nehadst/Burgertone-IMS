@@ -127,3 +127,5 @@ process.on('SIGINT', async () => {
 module.exports = {
     pool: pool.promise()
 };
+
+const { pool } = require('./db');
