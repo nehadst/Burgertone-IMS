@@ -1,18 +1,26 @@
 {
   "name": "burgertone-ims",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Inventory Management System for BurgerTone",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "client": "cd client && npm start",
+    "dev:full": "concurrently \"npm run dev\" \"npm run client\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "express": "^4.21.1",
-    "mysql": "^2.18.1",
-    "socket.io": "^4.8.1"
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "mysql2": "^3.11.4",
+    "ws": "^8.2.0"
+  },
+  "devDependencies": {
+    "concurrently": "^6.2.0",
+    "nodemon": "^2.0.12"
   }
 }

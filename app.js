@@ -65,6 +65,51 @@ pool.getConnection((err, connection) => {
     startServer();
 });
 
+// Import route handlers
+const ingredientRoutes = require('./routes/ingredients');
+const menuRoutes = require('./routes/menuItems');
+const reportRoutes = require('./routes/reports');
+
+// Add routes
+app.use('/api/ingredients', ingredientRoutes);
+app.use('/api/menu', menuRoutes);
+app.use('/api/reports', reportRoutes);
+
+// WebSocket setup for real-time notifications
+const WebSocket = require('ws');
+const wss = new WebSocket.Server({ port: 8080 });
+
+wss.on('connection', function connection(ws) {
+    console.log('New client connected');
+    ws.on('message', function incoming(message) {
+        console.log('received: %s', message);
+    });
+});
+
+// Middleware to check inventory levels
+app.use(async (req, res, next) => {
+    try {
+        const [lowStockItems] = await pool.query(`
+            SELECT * FROM Ingredients 
+            WHERE quantity <= threshold
+        `);
+        
+        if (lowStockItems.length > 0) {
+            wss.clients.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({
+                        type: 'LOW_STOCK_ALERT',
+                        items: lowStockItems
+                    }));
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error checking inventory levels:', error);
+    }
+    next();
+});
+
 // Start server
 function startServer() {
     const PORT = process.env.PORT || 3000;
