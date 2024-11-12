@@ -1,7 +1,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { pool } = require('../app');
+const { pool } = require('../db');
 
 // Get all ingredients
 router.get('/', async (req, res) => {
