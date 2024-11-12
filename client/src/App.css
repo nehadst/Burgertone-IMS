@@ -36,3 +36,36 @@
     transform: rotate(360deg);
   }
 }
+.alerts-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #ff4444;
+  color: white;
+  padding: 15px;
+  z-index: 9999;
+  text-align: left;
+}
+
+.alerts-banner ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.alerts-banner li {
+  margin: 5px 0;
+}
+
+.connection-status {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffa500;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  z-index: 9999;
+}
