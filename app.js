@@ -1,6 +1,6 @@
-const mysql = require('mysql2');
 const express = require('express');
 const dotenv = require('dotenv');
+const { pool } = require('./db');  // Import pool from db.js
 
 dotenv.config();
 
@@ -18,52 +18,6 @@ const app = express();
 // Add basic middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Database configuration
-const dbConfig = {
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-};
-
-// Create connection pool
-const pool = mysql.createPool(dbConfig);
-
-// Enhance error logging
-pool.getConnection((err, connection) => {
-    if (err) {
-        console.error('Failed to connect to database:', {
-            errorCode: err.code,
-            errorNumber: err.errno,
-            errorMessage: err.message,
-            errorStack: err.stack,
-            sqlState: err.sqlState,
-            fatal: err.fatal
-        });
-        
-        // Common error codes
-        switch(err.code) {
-            case 'ER_ACCESS_DENIED_ERROR':
-                console.error('Access denied - check username and password');
-                break;
-            case 'ECONNREFUSED':
-                console.error('Connection refused - check if MySQL is running');
-                break;
-            case 'ER_BAD_DB_ERROR':
-                console.error('Database does not exist');
-                break;
-        }
-        process.exit(1);
-    }
-    console.log('Successfully connected to MySQL database!');
-    connection.release();
-    startServer();
-});
 
 // Import route handlers
 const ingredientRoutes = require('./routes/ingredients');
@@ -123,9 +77,4 @@ process.on('SIGINT', async () => {
     }
 });
 
-// Export pool for use in other modules
-module.exports = {
-    pool: pool.promise()
-};
-
-const { pool } = require('./db');
+startServer();
