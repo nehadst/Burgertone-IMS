@@ -17,6 +17,11 @@ for (const envVar of requiredEnvVars) {
 
 const app = express();
 
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+
 // Create single server instance
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
@@ -29,63 +34,9 @@ const wss = new WebSocket.Server({ server });
 wss.on('connection', (ws) => {
     console.log('New client connected');
     ws.on('close', () => console.log('Client disconnected'));
-  });
-
-    
-
-
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+});
 
 // Inventory check middleware - Place this before routes
-app.use(async (req, res, next) => {
-  console.log('Inventory check middleware executed');
-  console.log('Request Method:', req.method);
-  console.log('Request Path:', req.path);
-  console.log('Original URL:', req.originalUrl);
-    next(); // Proceed to the next middleware or route handler
-  
-    // After response is sent, check if inventory needs to send alerts
-    if (req.method === 'PATCH' && req.path.startsWith('/api/ingredients')) {
-      try {
-        console.log('Checking low stock items...');
-        const [lowStockItems] = await pool.query(`
-          SELECT * FROM Ingredients 
-          WHERE quantity <= threshold
-        `);
-        console.log('Low stock items:', lowStockItems);
-        if (lowStockItems.length > 0) {
-          console.log('Low stock items:', lowStockItems);
-          wss.clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-              client.send(
-                JSON.stringify({
-                  type: 'LOW_STOCK_ALERT',
-                  items: lowStockItems,
-                })
-              );
-            }
-          });
-        } else {
-          console.log('No low stock items. Sending clear alerts to clients.');
-          // No low stock items, send clear alerts message
-          wss.clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-              client.send(
-                JSON.stringify({
-                  type: 'CLEAR_ALERTS',
-                })
-              );
-            }
-          });
-        }
-      } catch (error) {
-        console.error('Error checking inventory levels:', error);
-      }
-    }
-  });
 
 
 
@@ -97,6 +48,65 @@ const reportRoutes = require('./routes/reports');
 app.use('/api/ingredients', ingredientRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/reports', reportRoutes);
+
+app.use(async (req, res, next) => {
+  try {
+      const [lowStockItems] = await pool.query(`
+          SELECT * FROM Ingredients 
+          WHERE quantity <= threshold
+      `);
+      
+      if (lowStockItems.length > 0) {
+          wss.clients.forEach((client) => {
+              if (client.readyState === WebSocket.OPEN) {
+                  client.send(JSON.stringify({
+                      type: 'LOW_STOCK_ALERT',
+                      items: lowStockItems
+                  }));
+              }
+          });
+      }
+  } catch (error) {
+      console.error('Error checking inventory levels:', error);
+  }
+  next();
+});
+
+app.get('/test-alert', (req, res) => {
+  wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+              type: 'LOW_STOCK_ALERT',
+              message: 'This is a test alert for low stock'
+          }));
+      }
+  });
+  res.send('Test alert sent to all clients');
+});
+
+setInterval(async () => {
+  try {
+      const [lowStockItems] = await pool.query(`
+          SELECT * FROM Ingredients 
+          WHERE quantity <= threshold
+      `);
+
+      if (lowStockItems.length > 0) {
+          console.log('Low stock items detected:', lowStockItems);
+          wss.clients.forEach((client) => {
+              if (client.readyState === WebSocket.OPEN) {
+                  console.log('Sending automatic low stock alert to client');
+                  client.send(JSON.stringify({
+                      type: 'LOW_STOCK_ALERT',
+                      items: lowStockItems
+                  }));
+              }
+          });
+      }
+  } catch (error) {
+      console.error('Error in scheduled inventory check:', error);
+  }
+}, 6000);
 
 
 // Cleanup

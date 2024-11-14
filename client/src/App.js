@@ -12,24 +12,14 @@ function App() {
     const ws = new WebSocket('ws://localhost:3000'); // Ensure this matches your backend port
 
     ws.onopen = () => {
-      console.log('WebSocket Connected');
-      setWsConnected(true);
+        console.log('Connected to WebSocket server');
     };
-
+    
     ws.onmessage = (event) => {
-      console.log('Received message:', event.data);
-      try {
         const data = JSON.parse(event.data);
         if (data.type === 'LOW_STOCK_ALERT') {
-          console.log('Setting alerts:', data.items);
-          setAlerts(data.items);
-        } else if (data.type === 'CLEAR_ALERTS') {
-          console.log('Clearing alerts');
-          setAlerts([]);
+            console.log('Received low stock alert:', data.items);
         }
-      } catch (error) {
-        console.error('Parse error:', error);
-      }
     };
 
     ws.onerror = (error) => {
