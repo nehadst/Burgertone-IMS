@@ -30,6 +30,9 @@ router.post('/', async (req, res) => {
 // Update ingredient quantity
 router.patch('/:id', async (req, res) => {
     const { quantity } = req.body;
+    const { id } = req.params;
+    console.log(`Received PATCH request for ingredient ID ${id} with quantity ${quantity}`);
+
     try {
         await pool.query(
             'UPDATE Ingredients SET quantity = ? WHERE id = ?',
