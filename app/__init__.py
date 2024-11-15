@@ -5,13 +5,13 @@ from flask_socketio import SocketIO
 
 # Create instances of extensions for SQLAlchemy and SocketIO
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///burgertone_inventory.db'
-db = SQLAlchemy(app)
+db = SQLAlchemy()
 socketio = SocketIO(cors_allowed_origins="*")
 
 
 # Funciton to create and configure the Flask app
 def create_app():
-    app = Flask(__name)
+    app = Flask(__name__)
     CORS(app) # Enable Cross-Origin Resource Sharing
 
     # LOad configurations
