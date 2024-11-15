@@ -1,6 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const { pool } = require('./db');
+const { pool } = require('../db');
 const WebSocket = require('ws');
 const cors = require('cors');
 

@@ -12,6 +12,9 @@ class Ingredients(db.Model):
     quantity = db.Column(db.Float(10,2), nullable=False)
     threshold = db.Column(db.Float(10,2), nullable=False)
 
+    def __repr__(self):
+        return f'<Ingredient {self.name}>'
+
 @app.route('/')
 def home():
     return "Hello, Flask!"
