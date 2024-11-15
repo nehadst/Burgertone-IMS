@@ -41,9 +41,9 @@ wss.on('connection', (ws) => {
 
 
 // Routes
-const ingredientRoutes = require('./routes/ingredients');
-const menuRoutes = require('./routes/menuItems');
-const reportRoutes = require('./routes/reports');
+const ingredientRoutes = require('./routes for js/ingredients');
+const menuRoutes = require('./routes for js/menuItems');
+const reportRoutes = require('./routes for js/reports');
 
 app.use('/api/ingredients', ingredientRoutes);
 app.use('/api/menu', menuRoutes);
