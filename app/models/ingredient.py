@@ -1,7 +1,7 @@
 from app import db
 
 class Ingredients(db.Model):
-    id = db.Column(d.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     unit = db.Column(db.String(255), nullable=False)
     quantity = db.Column(db.Float(10,2), nullable=False)
@@ -9,3 +9,12 @@ class Ingredients(db.Model):
 
     def __repr__(self):
         return f'<Ingredient {self.name}>'
+
+    def __dict__(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'unit': self.unit,
+            'quantity': self.quantity,
+            'threshold': self.threshold
+        }
