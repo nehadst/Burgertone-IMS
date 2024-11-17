@@ -2,11 +2,13 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_socketio import SocketIO
+from app.websocket.alert_service import send_low_stock_alert
+
 
 # Create instances of extensions for SQLAlchemy and SocketIO
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///burgertone_inventory.db'
 db = SQLAlchemy()
-socketio = SocketIO(cors_allowed_origins="*")
+socketio = SocketIO(cors_allowed_origins="*") # For enabling CORS for websocket
 
 
 # Funciton to create and configure the Flask app
@@ -22,12 +24,15 @@ def create_app():
     db.init_app(app) # Bind SQLAlchemy to the Flask app
     socketio.init_app(app) # Bind SocketIO to the Flask app
 
-
     # Register Blueprints for routes
     from app.routes.ingredients import ingredients_blueprint
     app.register_blueprint(ingredients_blueprint, url_prefix="/ingredients")
 
     return app
+    @app.after_request
+    def check_inventory_levels(response):
+        send_low_stock_alert(socketio)
+        return response
 
 # @app.route('/')
 # def home():
