@@ -1,16 +1,15 @@
 from flask import Blueprint, request, jsonify
 from app.models.ingredient import Ingredients
 from app import db
-from app import ingredients_blueprint
 
-ingredients_blueprit = Blueprint('ingredients', __name__)
+ingredients_blueprint = Blueprint('ingredients', __name__)
 
 #Get all the ingredients
 
 @ingredients_blueprint.route('/', methods = ['GET'])
 def get_all_ingredients():
     ingredients = Ingredients.query.all()
-    return jsonify([ingredient.__dict__ for ingredient in ingredients])
+    return jsonify([ingredient.to_dict() for ingredient in ingredients])
 
 
 # Get a single ingredient by ingredient id
@@ -19,12 +18,12 @@ def get_ingredient(id):
     ingredient = Ingredients.query.get(id)
     if not ingredient:
         return jsonify({'message': 'Ingredient not found'}), 404
-    return jsonify(ingredient.__dict__)
+    return jsonify(ingredient.to_dict())
 
 # Adding a new ingredient
 @ingredients_blueprint.route('/', methods = ['POST'])
 def add_ingredient():
-    data = request.get_jsoN()
+    data = request.get_json()
     new_ingredient = Ingredients(
         name = data['name'],
         unit = data['unit'],
@@ -33,23 +32,23 @@ def add_ingredient():
     db.session.add(new_ingredient)
     db.session.commit()
 
-    return jsonify(new_ingredient.__dict__), 201
+    return jsonify(new_ingredient.to_dict()), 201
 
 
 # Update an ingredient by ingredient id
 @ingredients_blueprint.route('/<int:id>', methods = ['PUT'])
-def add_ingredient():
+def update_ingredient():
     ingredient = Ingredients.query.get(id)
     if not ingredient:
         return jsonify({'message': 'Ingredient not found'}), 404
-    data = request.get_jsoN()
+    data = request.get_json()
     ingredient.name = data['name']
     ingredient.unit = data['unit']
     ingredient.quantity = data['quantity']
     ingredient.threshold = data['threshold']
     db.session.commit()
 
-    return jsonify(ingredient.__dict__)
+    return jsonify(ingredient.to_dict())
 
 
 

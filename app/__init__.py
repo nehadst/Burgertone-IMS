@@ -15,7 +15,7 @@ def create_app():
     CORS(app) # Enable Cross-Origin Resource Sharing
 
     # LOad configurations
-    app.config.from_object("config.Config")
+    app.config.from_object("app.config.Config")
 
 
     # Initialize the database
