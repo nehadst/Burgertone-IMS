@@ -1,51 +1,33 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from app.extensions import db
 from flask_socketio import SocketIO
-from app.websocket.alert_service import send_low_stock_alert
 
 
-# Create instances of extensions for SQLAlchemy and SocketIO
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///burgertone_inventory.db'
-db = SQLAlchemy()
-socketio = SocketIO(cors_allowed_origins="*") # For enabling CORS for websocket
+socketio = SocketIO(async_mode="eventlet", cors_allowed_origins="*")
 
-
-# Funciton to create and configure the Flask app
 def create_app():
     app = Flask(__name__)
-    CORS(app) # Enable Cross-Origin Resource Sharing
-
-    # LOad configurations
+    CORS(app)
+    
+    # Load configurations
     app.config.from_object("app.config.Config")
 
+    # Initialize extensions
+    db.init_app(app)
+    socketio.init_app(app)
 
-    # Initialize the database
-    db.init_app(app) # Bind SQLAlchemy to the Flask app
-    socketio.init_app(app) # Bind SocketIO to the Flask app
-
-    # Register Blueprints for routes
+    # Register Blueprints
     from app.routes.ingredients import ingredients_blueprint
     app.register_blueprint(ingredients_blueprint, url_prefix="/ingredients")
 
-    return app
+    # Import here to avoid circular import
+    from app.websocket.alert_service import send_low_stock_alert
+
+    # Register after_request handler
     @app.after_request
     def check_inventory_levels(response):
         send_low_stock_alert(socketio)
         return response
 
-# @app.route('/')
-# def home():
-#     return "Hello, Flask!"
-
-# @app.route('/api/data')
-# def get_data():
-#     return {"data": "This is your data"}
-
-# @app.route('/api/hello/<name>')
-# def say_hello(name):
-#     return {"message": f"Hello, {name}!"}
-
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
+    return app

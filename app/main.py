@@ -1,10 +1,11 @@
-from app import create_app, db
+# Ensure monkey_patch is the first import
+import eventlet
+eventlet.monkey_patch()
+
+from app import create_app, socketio
 
 app = create_app()
 
-with app.app_context():
-    db.create_all()
-
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+if __name__ == "__main__":
+    # Run the Flask-SocketIO server using Eventlet
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
