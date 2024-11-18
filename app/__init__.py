@@ -1,9 +1,9 @@
 from flask import Flask
 from flask_cors import CORS
-from app.extensions import db
 from flask_socketio import SocketIO
+from flask_sqlalchemy import SQLAlchemy
 
-
+db = SQLAlchemy()
 socketio = SocketIO(async_mode="eventlet", cors_allowed_origins="*")
 
 def create_app():
