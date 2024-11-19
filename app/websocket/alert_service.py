@@ -3,8 +3,7 @@ from app.models.ingredient import Ingredients
 from flask import current_app
 
 
-#This function will handle sending low stock alerts
-#to connected clients
+#This function will handle sending low stock alerts to connected clients
 
 
 def send_low_stock_alert(socketio):
