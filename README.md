@@ -156,9 +156,7 @@ Or you can simply contact me at [nehad.st@gmail.com](mailto:nehad.st@gmail.com)
 
 ---
 
-### **📝 License**
-```markdown
-## 📝 License
+### 📝 License
 
 This project is licensed under the **MIT License**. 
 
@@ -168,6 +166,8 @@ You are free to use, copy, modify, merge, publish, distribute, sublicense, and/o
 
 For more details, see the [LICENSE](LICENSE) file.
 
+---
+
 ## 🙌 Acknowledgments
 
 I would like to thank the following for their contributions and support:
@@ -175,6 +175,8 @@ I would like to thank the following for their contributions and support:
 - **TouchBistro** for providing the point-of-sale data used in this project.
 - **React.js**, **Flask**, **Chart.js**, and **Selenium**: The open-source tools that made this project possible.
 - The Burgertone team for inspiration and input on inventory management challenges.
+
+---
 
 ## 📞 Contact
 
