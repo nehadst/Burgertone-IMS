@@ -91,7 +91,7 @@ Welcome to the **Burgertone Inventory Management System**, a robust and intellig
 
 ## 🤝 Contributing
 
-We welcome contributions to the Burgertone Inventory Management System! Here's how you can get involved:
+I welcome contributions to the Burgertone Inventory Management System! Here's how you can get involved:
 
 ### 🛠️ How to Contribute
 
@@ -150,7 +150,7 @@ We welcome contributions to the Burgertone Inventory Management System! Here's h
 
 ### 🧑‍💻 Need Help?
 
-If you're unsure about where to start or have any questions, feel free to open an issue or contact us via email. We're happy to help you contribute to the project!
+If you're unsure about where to start or have any questions, feel free to open an issue or contact me via email. I am happy to help you contribute to the project!
 Or you can simply contact me at [nehad.st@gmail.com](mailto:nehad.st@gmail.com)
 
 
@@ -186,6 +186,6 @@ We’d love to hear from you! Feel free to reach out through any of the followin
 - **Email**: [nehad.st@gmail.com](mailto:nehad.st@gmail.com)
 - **Visit the Restaurant**: Check out Burgertone's official page at [burgertone.com](https://burgertone.com)
 
-We appreciate your interest in the Burgertone Inventory Management System. Whether you have feedback, suggestions, or just want to say hello, don't hesitate to get in touch!
+I appreciate your interest in the Burgertone Inventory Management System. Whether you have feedback, suggestions, or just want to say hello, don't hesitate to get in touch!
 
 
