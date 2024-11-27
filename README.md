@@ -78,9 +78,112 @@ Welcome to the **Burgertone Inventory Management System**, a robust and intellig
 
 ---
 
-## 📖 Installation Guide
+## 📅 Roadmap
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/yourusername/Burgertone-IMS.git
-cd Burgertone-IMS
+- [x] Automate daily CSV exports using Selenium.
+- [x] Integrate TouchBistro data into the IMS database.
+- [x] Create low-stock notifications.
+- [x] Build React-based dashboards with real-time visualizations.
+- [x] Implement predictive analytics for inventory restocking.
+- [x] Develop employee scheduling optimization feature.
+- [ ] Create APIs for third-party integrations (e.g., accounting software).
+
+
+## 🤝 Contributing
+
+We welcome contributions to the Burgertone Inventory Management System! Here's how you can get involved:
+
+### 🛠️ How to Contribute
+
+1. **Fork the Repository**:  
+   - Click the "Fork" button on the top-right corner of the repository page to create your copy of the project.
+
+2. **Clone Your Fork**:  
+   - Clone the repository to your local machine:
+     ```bash
+     git clone https://github.com/yourusername/Burgertone-IMS.git
+     cd Burgertone-IMS
+     ```
+
+3. **Create a Branch**:  
+   - Create a new branch for your feature or bug fix:
+     ```bash
+     git checkout -b feature/your-feature-name
+     ```
+
+4. **Make Changes**:  
+   - Implement your feature, enhancement, or bug fix.
+   - Ensure your changes adhere to the project's style and standards.
+
+5. **Test Your Changes**:  
+   - Run existing tests and, if applicable, write new tests for your changes.
+   - Make sure all tests pass before proceeding.
+
+6. **Commit Your Changes**:  
+   - Add descriptive and meaningful commit messages:
+     ```bash
+     git add .
+     git commit -m "Add a detailed description of your changes"
+     ```
+
+7. **Push to Your Fork**:  
+   - Push your changes to your forked repository:
+     ```bash
+     git push origin feature/your-feature-name
+     ```
+
+8. **Open a Pull Request**:  
+   - Go to the original repository and click "New Pull Request."
+   - Provide a clear description of your changes and link any related issues.
+
+---
+
+### ✨ Guidelines for Contributions
+
+- Ensure all code follows the project's style guide.
+- Write clear, concise, and descriptive commit messages.
+- Include comments and documentation where necessary.
+- Run tests to ensure your changes do not introduce bugs.
+- Be respectful and collaborative in your communication with other contributors.
+
+---
+
+### 🧑‍💻 Need Help?
+
+If you're unsure about where to start or have any questions, feel free to open an issue or contact us via email. We're happy to help you contribute to the project!
+Or you can simply contact me at [nehad.st@gmail.com](mailto:nehad.st@gmail.com)
+
+
+---
+
+### **📝 License**
+```markdown
+## 📝 License
+
+This project is licensed under the **MIT License**. 
+
+You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, subject to the following conditions:
+
+- Include the original copyright notice and this permission notice in all copies or substantial portions of the Software.
+
+For more details, see the [LICENSE](LICENSE) file.
+
+## 🙌 Acknowledgments
+
+I would like to thank the following for their contributions and support:
+
+- **TouchBistro** for providing the point-of-sale data used in this project.
+- **React.js**, **Flask**, **Chart.js**, and **Selenium**: The open-source tools that made this project possible.
+- The Burgertone team for inspiration and input on inventory management challenges.
+
+## 📞 Contact
+
+We’d love to hear from you! Feel free to reach out through any of the following channels:
+
+- **Connect on LinkedIn**: [Nehad Shikh Trab](https://linkedin.com/in/nehad-st)
+- **Email**: [nehad.st@gmail.com](mailto:nehad.st@gmail.com)
+- **Visit the Restaurant**: Check out Burgertone's official page at [burgertone.com](https://burgertone.com)
+
+We appreciate your interest in the Burgertone Inventory Management System. Whether you have feedback, suggestions, or just want to say hello, don't hesitate to get in touch!
+
+
