@@ -49,7 +49,7 @@ Welcome to the **Burgertone Inventory Management System**, a robust and intellig
 
 ### Backend
 - **Python (Flask)**: Backend logic and API development.
-- **SQL**: Database for storing and managing inventory, sales, and employee data.
+- **GCP & SQL**: Databases for storing and managing inventory, sales, and employee data.
 
 ### Data Integration
 - **Selenium**: Web scraper for automating TouchBistro data exports.
