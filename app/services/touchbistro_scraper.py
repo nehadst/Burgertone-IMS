@@ -14,9 +14,6 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 import logging
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from dotenv import load_dotenv
-
-load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,9 +28,7 @@ class TouchBistroScraper:
     def __init__(self, gcs_bucket_name, credentials_path):
         self.logger = logging.getLogger('TouchBistroScraper')
         # Initialize Google Cloud Storage client
-        self.storage_client = storage.Client.from_service_account_info(
-            json.loads(os.getenv('GOOGLE_APPLICATION_CREDENTIALS'))
-        )
+        self.storage_client = storage.Client.from_service_account_json(credentials_path)
         self.bucket = self.storage_client.bucket(gcs_bucket_name)
 
         # Set up Selenium with Chrome (no headless)
