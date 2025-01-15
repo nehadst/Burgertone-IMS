@@ -122,6 +122,35 @@ class TestTouchBistroScraper(unittest.TestCase):
         self.assertAlmostEqual(sales_total, expected_total, places=2,
                               msg=f"Expected total ${expected_total}, but found ${sales_total}")
 
+    def test_bulk_download(self):
+        """Test downloading reports for a specific date range"""
+        try:
+            # Login first
+            self.scraper.login(self.test_username, self.test_password)
+            
+            # Set date range
+            start_date = datetime(2022, 6, 2)
+            end_date = datetime(2023, 12, 31)
+            
+            # Download reports
+            self.scraper.download_all_reports(start_date, end_date)
+            
+            # Verify files exist in GCS
+            missing_dates = []
+            current_date = start_date
+            while current_date <= end_date:
+                date_str = current_date.strftime("%Y-%m-%d")
+                blob = self.scraper.bucket.blob(f"reports/{date_str}.csv")
+                if not blob.exists():
+                    missing_dates.append(date_str)
+                current_date += timedelta(days=1)
+            
+            self.assertEqual(len(missing_dates), 0, 
+                            f"Missing reports for dates: {missing_dates}")
+                            
+        except Exception as e:
+            self.fail(f"Bulk download failed with error: {e}")
+
 if __name__ == '__main__':
     # Set up logging
     logging.basicConfig(

@@ -237,10 +237,40 @@ class TouchBistroScraper:
             print(f"Error uploading to GCS: {e}")
 
     def download_all_reports(self, start_date, end_date):
+        """Download reports for a date range"""
+        print(f"Starting bulk download from {start_date} to {end_date}")
+        
+        # Calculate total days
+        total_days = (end_date - start_date).days + 1
+        completed = 0
+        
         current_date = start_date
         while current_date <= end_date:
-            self.download_report(current_date.strftime("%Y-%m-%d"))
+            try:
+                date_str = current_date.strftime("%Y-%m-%d")
+                print(f"\nProcessing {date_str} ({completed}/{total_days})")
+                
+                # Check if report already exists
+                blob = self.bucket.blob(f"reports/{date_str}.csv")
+                if blob.exists():
+                    print(f"Report for {date_str} already exists, skipping...")
+                else:
+                    # Download report
+                    self.download_report(date_str)
+                    print(f"Successfully downloaded report for {date_str}")
+                
+                completed += 1
+                
+                # Add a small delay between downloads
+                time.sleep(2)
+                
+            except Exception as e:
+                print(f"Error downloading report for {date_str}: {e}")
+                # Continue with next date even if one fails
+            
             current_date += timedelta(days=1)
+        
+        print(f"\nBulk download completed. Processed {completed}/{total_days} days")
 
     def close(self):
         self.driver.quit()
@@ -292,11 +322,10 @@ class TouchBistroScraper:
 
 # Usage Example
 if __name__ == "__main__":
-    # Replace these with your actual credentials and bucket name
     username = "jamil.shikhtrab@gmail.com"  # TouchBistro login email
     password = "Admin@1973"  # TouchBistro password
-    start_date = datetime.strptime("2022-06-15", "%Y-%m-%d")  # Replace with start date as needed
-    end_date = datetime.today()  # Set to today's date or desired end date
+    start_date = datetime(2022, 6, 2)
+    end_date = datetime(2023, 12, 31)
     gcs_bucket_name = "burgertone"  # GCS bucket name
     credentials_path = "/mnt/c/Users/nehad/Burgertone-IMS/credentials/burgertone-credentials"  # JSON Credentials
 
