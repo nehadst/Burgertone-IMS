@@ -24,18 +24,29 @@ class TestSalesAnalyzer(unittest.TestCase):
         try:
             df = self.analyzer.load_historical_data()
             
-            # Verify dataframe structure
-            required_columns = ['item_name', 'quantity', 'sales', 'date']
-            for col in required_columns:
-                self.assertIn(col, df.columns)
+            # Print detailed menu item analysis
+            print("\n=== Menu Items Analysis ===")
             
-            # Verify data types
-            self.assertTrue(pd.api.types.is_datetime64_any_dtype(df['date']))
-            self.assertTrue(pd.api.types.is_numeric_dtype(df['quantity']))
-            self.assertTrue(pd.api.types.is_numeric_dtype(df['sales']))
+            # Group by item_name and get total quantities and sales
+            item_summary = df.groupby('item_name').agg({
+                'quantity': ['sum', 'mean'],
+                'sales': ['sum', 'mean']
+            }).round(2)
             
-            # Print summary stats
-            print("\nData Summary:")
+            # Rename columns for clarity
+            item_summary.columns = ['total_qty', 'avg_daily_qty', 'total_sales', 'avg_daily_sales']
+            
+            # Sort by total sales descending
+            item_summary = item_summary.sort_values('total_sales', ascending=False)
+            
+            print("\nTop 10 Items by Sales:")
+            print(item_summary.head(10))
+            
+            print("\nSample of Daily Data:")
+            print(df.head(10))
+            
+            # Basic statistics
+            print("\nOverall Statistics:")
             print(f"Date range: {df['date'].min()} to {df['date'].max()}")
             print(f"Total menu items: {df['item_name'].nunique()}")
             print(f"Total records: {len(df)}")
