@@ -1,0 +1,5 @@
+.env
+node_modules/
+credentials/
+scraper.log
+burgertone-credentials.json
