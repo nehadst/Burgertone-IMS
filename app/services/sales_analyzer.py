@@ -3,10 +3,25 @@ import pandas as pd
 from datetime import datetime, timedelta
 from io import StringIO
 import numpy as np
+import json
+import os
 
 class SalesAnalyzer:
-    def __init__(self, bucket_name="burgertone"):
-        self.storage_client = storage.Client()
+    def __init__(self, bucket_name="burgertone", credentials_path=None):
+        if credentials_path:
+            self.storage_client = storage.Client.from_service_account_json(credentials_path)
+        else:
+            # Try to get credentials from environment variable
+            credentials_json = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+            if credentials_json:
+                self.storage_client = storage.Client.from_service_account_info(
+                    json.loads(credentials_json)
+                )
+            else:
+                raise ValueError(
+                    "No credentials provided. Either pass credentials_path or "
+                    "set GOOGLE_APPLICATION_CREDENTIALS environment variable"
+                )
         self.bucket = self.storage_client.bucket(bucket_name)
         
     def load_historical_data(self):
@@ -48,25 +63,66 @@ class SalesAnalyzer:
     def _extract_menu_items(self, df):
         """Extract menu items sales data from CSV content"""
         try:
-            # Convert df to string to search for section
+            # Convert content to string to search for sections
             content = df.to_string()
             
             # Find the SALES BY MENU ITEM section
             if 'SALES BY MENU ITEM' not in content:
+                print("SALES BY MENU ITEM section not found")
                 return None
-                
-            # Extract relevant columns
+            
+            # Create DataFrame with correct columns and dtypes
             menu_items = pd.DataFrame({
-                'item_name': df['Menu Item'],
-                'quantity': df['Quantity'].astype(int),
-                'sales': df['Sales Total'].str.replace('$', '').str.replace(',', '').astype(float),
-                'date': df['date']
+                'item_name': pd.Series(dtype='str'),
+                'quantity': pd.Series(dtype='int'),
+                'sales': pd.Series(dtype='float'),
+                'date': pd.Series(dtype='datetime64[ns]')
             })
+            
+            # Find rows between "SALES BY MENU ITEM" and the next section
+            menu_item_started = False
+            for index, row in df.iterrows():
+                # Check if we've reached the menu items section
+                if 'SALES BY MENU ITEM' in str(row.values):
+                    menu_item_started = True
+                    continue
+                
+                # Skip header row
+                if menu_item_started and 'Menu Item' in str(row.values):
+                    continue
+                
+                # Stop if we hit the next section
+                if menu_item_started and row.isna().all():
+                    break
+                
+                # Process menu item row
+                if menu_item_started:
+                    try:
+                        # Use iloc instead of positional indexing
+                        item_name = row.iloc[0]
+                        sales = float(str(row.iloc[1]).replace('$', '').replace(',', ''))
+                        quantity = int(float(row.iloc[2]))
+                        
+                        # Create new row with correct dtypes
+                        new_row = pd.DataFrame({
+                            'item_name': [item_name],
+                            'quantity': [quantity],
+                            'sales': [sales],
+                            'date': [df['date'].iloc[0]]
+                        })
+                        
+                        # Append to existing DataFrame
+                        menu_items = pd.concat([menu_items, new_row], ignore_index=True)
+                        
+                    except (ValueError, IndexError) as e:
+                        print(f"Skipping row due to error: {e}")
+                        continue
             
             return menu_items
             
         except Exception as e:
-            print(f"Error extracting menu items: {e}")
+            print(f"Error extracting menu items: {str(e)}")
+            print(f"DataFrame head:\n{df.head()}")
             return None
     
     def prepare_for_forecasting(self, df):

@@ -1,10 +1,23 @@
 import unittest
 from datetime import datetime
+import os
+import pandas as pd
 from app.services.sales_analyzer import SalesAnalyzer
 
 class TestSalesAnalyzer(unittest.TestCase):
     def setUp(self):
-        self.analyzer = SalesAnalyzer()
+        # Get project root directory
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        
+        # Build path to credentials in the credentials folder
+        credentials_path = os.path.join(project_root, "credentials", "burgertone-credentials.json")
+        
+        print(f"Looking for credentials at: {credentials_path}")  # Debug print
+        
+        if not os.path.exists(credentials_path):
+            raise ValueError(f"Credentials file not found at: {credentials_path}")
+        
+        self.analyzer = SalesAnalyzer(credentials_path=credentials_path)
     
     def test_load_historical_data(self):
         """Test loading and processing historical data"""
