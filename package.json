@@ -17,6 +17,7 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "mysql2": "^3.11.4",
+    "openai": "^4.78.1",
     "ws": "^8.2.0"
   },
   "devDependencies": {

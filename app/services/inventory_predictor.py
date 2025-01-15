@@ -5,15 +5,26 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import openai
+from dotenv import load_dotenv
+import os
 
 class InventoryPredictor:
     def __init__(self):
+        # Load environment variables
+        load_dotenv()
+        
         self.model = RandomForestRegressor(
             n_estimators=100,
             random_state=42
         )
         self.scaler = StandardScaler()
-        self.openai = openai.OpenAI()
+        
+        # Get OpenAI key from .env
+        openai_key = os.getenv('OPENAI_API_KEY')
+        if not openai_key:
+            print("Warning: OPENAI_API_KEY not found in .env file")
+        
+        self.openai = openai.OpenAI(api_key=openai_key)
         
     def prepare_features(self, df):
         """Prepare features for ML model"""
@@ -66,36 +77,49 @@ class InventoryPredictor:
         self.models = {}
         self.scalers = {}
         
-        for item in df['item_name'].unique():
+        # Filter out null item names
+        valid_items = df['item_name'].dropna().unique()
+        
+        for item in valid_items:  # Changed from df['item_name'].unique()
             print(f"Training model for: {item}")
             item_data = df[df['item_name'] == item]
+            
+            # Skip if not enough data
+            if len(item_data) < 10:  # Minimum required samples
+                print(f"Skipping {item} - insufficient data")
+                continue
             
             X = item_data[feature_columns]
             y = item_data['quantity']
             
-            # Split data
-            X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.2, random_state=42
-            )
-            
-            # Scale features
-            scaler = StandardScaler()
-            X_train_scaled = scaler.fit_transform(X_train)
-            X_test_scaled = scaler.transform(X_test)
-            
-            # Train model
-            model = RandomForestRegressor(n_estimators=100, random_state=42)
-            model.fit(X_train_scaled, y_train)
-            
-            # Store model and scaler
-            self.models[item] = model
-            self.scalers[item] = scaler
-            
-            # Print model performance
-            train_score = model.score(X_train_scaled, y_train)
-            test_score = model.score(X_test_scaled, y_test)
-            print(f"  Train R² score: {train_score:.3f}")
-            print(f"  Test R² score: {test_score:.3f}")
+            try:
+                # Split data
+                X_train, X_test, y_train, y_test = train_test_split(
+                    X, y, test_size=0.2, random_state=42
+                )
+                
+                # Scale features
+                scaler = StandardScaler()
+                X_train_scaled = scaler.fit_transform(X_train)
+                X_test_scaled = scaler.transform(X_test)
+                
+                # Train model
+                model = RandomForestRegressor(n_estimators=100, random_state=42)
+                model.fit(X_train_scaled, y_train)
+                
+                # Store model and scaler
+                self.models[item] = model
+                self.scalers[item] = scaler
+                
+                # Print model performance
+                train_score = model.score(X_train_scaled, y_train)
+                test_score = model.score(X_test_scaled, y_test)
+                print(f"  Train R² score: {train_score:.3f}")
+                print(f"  Test R² score: {test_score:.3f}")
+                
+            except Exception as e:
+                print(f"Error training model for {item}: {str(e)}")
+                continue
     
     def predict(self, df, days_ahead=7):
         """Predict inventory needs for the next n days"""
@@ -164,7 +188,7 @@ class InventoryPredictor:
         
         try:
             response = self.openai.chat.completions.create(
-                model="gpt-4",
+                model="o1-preview-2024-09-12",
                 messages=[{"role": "user", "content": prompt}]
             )
             return response.choices[0].message.content
