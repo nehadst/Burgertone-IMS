@@ -5,7 +5,7 @@ import os
 from app.services.sales_analyzer import SalesAnalyzer
 from app.services.inventory_predictor import InventoryPredictor
 from typing import List, Dict, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 # Initialize FastAPI app
 app = FastAPI(title="Burgertone Inventory API")
@@ -26,12 +26,18 @@ credentials_path = os.path.join(project_root, "credentials", "burgertone-credent
 analyzer = SalesAnalyzer(credentials_path=credentials_path)
 predictor = InventoryPredictor()
 
-# Pydantic models for request/response
+# Pydantic models with better type definitions
+class Prediction(BaseModel):
+    date: datetime
+    predicted_quantity: int
+
 class PredictionResponse(BaseModel):
     item_name: str
-    predictions: List[Dict[str, any]]
+    predictions: List[Prediction]
     historical_avg: float
     
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
 class HistoricalDataResponse(BaseModel):
     item_name: str
     dates: List[str]
@@ -71,7 +77,10 @@ async def get_predictions(days: int = 7):
             historical_avg = df[df['item_name'] == item]['quantity'].mean()
             response.append({
                 "item_name": item,
-                "predictions": preds,
+                "predictions": [
+                    {"date": p["date"], "predicted_quantity": p["predicted_quantity"]} 
+                    for p in preds
+                ],
                 "historical_avg": round(historical_avg, 2)
             })
         
