@@ -1,46 +1,109 @@
-import React, { useState, useEffect } from 'react';
-import { Line } from 'react-chartjs-2';
-import { Card, Grid, Typography } from '@mui/material';
+import React from 'react';
+import { 
+    Container, 
+    Grid, 
+    Paper, 
+    Typography, 
+    Box,
+    CircularProgress,
+    Card,
+    CardContent
+} from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { 
+    LineChart, 
+    Line, 
+    XAxis, 
+    YAxis, 
+    CartesianGrid, 
+    Tooltip, 
+    Legend,
+    ResponsiveContainer 
+} from 'recharts';
 
-function Dashboard() {
-    const [data, setData] = useState(null);
-    
-    useEffect(() => {
-        fetch('/api/inventory/forecast')
-            .then(res => res.json())
-            .then(data => setData(data));
-    }, []);
-    
+const Dashboard = () => {
+    const { data: predictions, isLoading, error } = useQuery({
+        queryKey: ['predictions'],
+        queryFn: async () => {
+            const response = await axios.get('http://localhost:8000/api/inventory/predictions/7');
+            return response.data;
+        }
+    });
+
+    if (isLoading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+                <Typography color="error">Error loading predictions: {error.message}</Typography>
+            </Box>
+        );
+    }
+
     return (
-        <Grid container spacing={3}>
-            <Grid item xs={12}>
-                <Card>
-                    <Typography variant="h5">Sales Forecast</Typography>
-                    {data && (
-                        <Line 
-                            data={data.predictions}
-                            options={{
-                                responsive: true,
-                                plugins: {
-                                    title: {
-                                        display: true,
-                                        text: 'Predicted vs Actual Sales'
-                                    }
-                                }
-                            }}
-                        />
-                    )}
-                </Card>
-            </Grid>
+        <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+            <Typography variant="h3" gutterBottom align="center" sx={{ mb: 4 }}>
+                Inventory Predictions Dashboard
+            </Typography>
             
-            <Grid item xs={12} md={6}>
-                <Card>
-                    <Typography variant="h6">AI Insights</Typography>
-                    <Typography>{data?.insights}</Typography>
-                </Card>
+            <Grid container spacing={3}>
+                {predictions && predictions.map((item) => (
+                    <Grid item xs={12} md={6} key={item.item_name}>
+                        <Card elevation={3}>
+                            <CardContent>
+                                <Typography variant="h5" gutterBottom>
+                                    {item.item_name}
+                                </Typography>
+                                <Typography color="textSecondary" gutterBottom>
+                                    Historical Average: {item.historical_avg.toFixed(1)} units/day
+                                </Typography>
+                                
+                                <Box sx={{ height: 300, mt: 2 }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <LineChart
+                                            data={item.predictions}
+                                            margin={{
+                                                top: 5,
+                                                right: 30,
+                                                left: 20,
+                                                bottom: 5,
+                                            }}
+                                        >
+                                            <CartesianGrid strokeDasharray="3 3" />
+                                            <XAxis 
+                                                dataKey="date" 
+                                                tickFormatter={(date) => new Date(date).toLocaleDateString()}
+                                            />
+                                            <YAxis />
+                                            <Tooltip 
+                                                labelFormatter={(date) => new Date(date).toLocaleDateString()}
+                                                formatter={(value) => [`${value} units`, "Predicted Quantity"]}
+                                            />
+                                            <Legend />
+                                            <Line
+                                                type="monotone"
+                                                dataKey="predicted_quantity"
+                                                stroke="#8884d8"
+                                                name="Predicted Quantity"
+                                                strokeWidth={2}
+                                            />
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                ))}
             </Grid>
-        </Grid>
+        </Container>
     );
-}
+};
 
 export default Dashboard; 
