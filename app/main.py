@@ -65,28 +65,37 @@ async def root():
 async def get_predictions(days: int = 7):
     """Get inventory predictions for specified number of days"""
     try:
-        # Load latest data
+        print("Loading historical data...")  # Debug print
         df = analyzer.load_historical_data()
         
-        # Get predictions
+        if df is None:
+            print("No historical data loaded")  # Debug print
+            raise HTTPException(status_code=500, detail="Failed to load historical data")
+            
+        print("Making predictions...")  # Debug print
         predictions = predictor.predict(df, days_ahead=days)
         
+        if not predictions:
+            print("No predictions generated")  # Debug print
+            raise HTTPException(status_code=500, detail="Failed to generate predictions")
+            
         # Format response
         response = []
-        for item, preds in predictions.items():
-            historical_avg = df[df['item_name'] == item]['quantity'].mean()
+        for item_name, item_predictions in predictions.items():
+            historical_data = df[df['item_name'] == item_name]
+            historical_avg = historical_data['quantity'].mean()
+            
             response.append({
-                "item_name": item,
-                "predictions": [
-                    {"date": p["date"], "predicted_quantity": p["predicted_quantity"]} 
-                    for p in preds
-                ],
-                "historical_avg": round(historical_avg, 2)
+                "item_name": item_name,
+                "predictions": item_predictions,
+                "historical_avg": float(historical_avg)
             })
-        
+            
+        print(f"Returning predictions for {len(response)} items")  # Debug print
         return response
         
     except Exception as e:
+        print(f"Error in get_predictions: {str(e)}")  # Debug print
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/inventory/historical/{item_name}", response_model=HistoricalDataResponse)
