@@ -1,0 +1,79 @@
+@startuml TouchBistro Scraper Sequence Diagram
+
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+skinparam sequenceParticipant underline
+
+title TouchBistro Data Collection - Sequence Diagram
+
+actor "System Administrator" as Admin
+participant "Scheduler" as Scheduler
+participant "TouchBistroScraper" as Scraper
+participant "TouchBistro POS" as TouchBistro
+participant "Google Cloud Storage" as GCS
+participant "Database" as DB
+participant "Sales Analyzer" as Analyzer
+participant "Inventory Predictor" as Predictor
+
+autonumber
+
+== Initialization ==
+Admin -> Scheduler: Configure scheduled data collection
+activate Scheduler
+
+== Daily Automated Process ==
+Scheduler -> Scraper: Trigger daily data collection
+activate Scraper
+
+Scraper -> Scraper: Initialize Chrome WebDriver
+Scraper -> TouchBistro: Navigate to login page
+activate TouchBistro
+Scraper -> TouchBistro: Submit credentials
+TouchBistro -> Scraper: Authentication response
+Scraper -> TouchBistro: Navigate to reports dashboard
+Scraper -> TouchBistro: Select date range
+Scraper -> TouchBistro: Request CSV export
+TouchBistro -> Scraper: Download CSV file
+deactivate TouchBistro
+
+Scraper -> Scraper: Validate CSV data
+Scraper -> GCS: Upload CSV to cloud storage
+activate GCS
+GCS -> Scraper: Upload confirmation
+deactivate GCS
+
+Scraper -> DB: Trigger data import
+activate DB
+DB -> GCS: Retrieve CSV data
+GCS -> DB: Return CSV data
+DB -> DB: Process and store sales data
+DB -> Scraper: Import confirmation
+deactivate DB
+
+Scraper -> Scheduler: Report completion status
+deactivate Scraper
+
+== Data Analysis ==
+Scheduler -> Analyzer: Trigger sales analysis
+activate Analyzer
+Analyzer -> DB: Retrieve sales data
+DB -> Analyzer: Return sales data
+Analyzer -> Analyzer: Analyze sales trends
+Analyzer -> DB: Store analysis results
+Analyzer -> Scheduler: Analysis completion
+deactivate Analyzer
+
+== Inventory Prediction ==
+Scheduler -> Predictor: Trigger inventory prediction
+activate Predictor
+Predictor -> DB: Retrieve sales and inventory data
+DB -> Predictor: Return data
+Predictor -> Predictor: Generate inventory predictions
+Predictor -> Predictor: Calculate reorder recommendations
+Predictor -> DB: Store predictions and recommendations
+Predictor -> Scheduler: Prediction completion
+deactivate Predictor
+deactivate Scheduler
+
+@enduml 

@@ -1,0 +1,10 @@
+.env
+node_modules/
+credentials/
+scraper.log
+burgertone-credentials.json
+
+package-lock.json
+package.json
+chromedriver-win64/
+venv/

@@ -1,0 +1,87 @@
+@startuml Burgertone IMS Use Case Diagram
+
+skinparam actorStyle awesome
+skinparam usecaseStyle rectangle
+skinparam packageStyle rectangle
+skinparam linetype ortho
+
+title Burgertone Inventory Management System - Use Case Diagram
+
+' Actors
+actor "Restaurant Manager" as Manager
+actor "System Administrator" as Admin
+actor "TouchBistro POS" as TouchBistro
+actor "Google Cloud Storage" as GCS
+
+' Main package
+package "Burgertone IMS" {
+  ' Use cases for data collection
+  package "Data Collection" {
+    usecase "Automate TouchBistro Data Export" as UC1
+    usecase "Schedule Daily Reports" as UC2
+    usecase "Store Sales Data in Cloud" as UC3
+  }
+  
+  ' Use cases for inventory management
+  package "Inventory Management" {
+    usecase "Track Inventory Levels" as UC4
+    usecase "Generate Inventory Reports" as UC5
+    usecase "Manage Product Catalog" as UC6
+  }
+  
+  ' Use cases for sales analysis
+  package "Sales Analysis" {
+    usecase "Analyze Sales Trends" as UC7
+    usecase "Generate Sales Reports" as UC8
+    usecase "View Sales Dashboard" as UC9
+  }
+  
+  ' Use cases for inventory prediction
+  package "Inventory Prediction" {
+    usecase "Predict Future Inventory Needs" as UC10
+    usecase "Generate Reorder Recommendations" as UC11
+    usecase "Optimize Stock Levels" as UC12
+  }
+  
+  ' Use cases for system administration
+  package "System Administration" {
+    usecase "Manage User Accounts" as UC13
+    usecase "Configure System Settings" as UC14
+    usecase "Monitor System Performance" as UC15
+  }
+}
+
+' Relationships
+' Manager relationships
+Manager --> UC4
+Manager --> UC5
+Manager --> UC6
+Manager --> UC7
+Manager --> UC8
+Manager --> UC9
+Manager --> UC10
+Manager --> UC11
+Manager --> UC12
+
+' Admin relationships
+Admin --> UC13
+Admin --> UC14
+Admin --> UC15
+Admin --> UC1
+Admin --> UC2
+
+' TouchBistro relationships
+TouchBistro --> UC1
+UC1 ..> UC2 : <<include>>
+UC2 ..> UC3 : <<include>>
+
+' GCS relationships
+UC3 --> GCS
+
+' Internal relationships
+UC4 ..> UC10 : <<extend>>
+UC7 ..> UC10 : <<include>>
+UC10 ..> UC11 : <<include>>
+UC11 ..> UC12 : <<include>>
+
+@enduml 
