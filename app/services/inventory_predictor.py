@@ -146,6 +146,7 @@ class InventoryPredictor:
         
         # Get the last date in the dataset
         last_date = df['date'].max()
+        print(f"Last date in dataset: {last_date}")
         
         # Prepare features for prediction
         df = self.prepare_features(df)
@@ -175,10 +176,15 @@ class InventoryPredictor:
                 # Make prediction
                 pred_qty = self.models[item].predict(pred_features_scaled)[0]
                 
+                # Format date as YYYY-MM-DD string for consistent parsing in frontend
+                formatted_date = next_date.strftime('%Y-%m-%d')
+                
                 item_predictions.append({
-                    'date': next_date,
+                    'date': formatted_date,
                     'predicted_quantity': max(0, round(pred_qty))  # Ensure non-negative
                 })
+                
+                print(f"Prediction for {item} on {formatted_date}: {max(0, round(pred_qty))}")
                 
             predictions[item] = item_predictions
         

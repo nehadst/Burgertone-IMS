@@ -4,6 +4,15 @@ Welcome to the **Burgertone Inventory Management System**, a robust and intellig
 
 ---
 
+
+Run frontend:
+
+python3 -m http.server 3000
+
+Run backend:
+
+python3 run_backend.py
+
 ## 🚀 Features
 
 ### 1. Data Integration

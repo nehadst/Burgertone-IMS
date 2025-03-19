@@ -5,6 +5,7 @@ from io import StringIO
 import numpy as np
 import json
 import os
+import re
 
 class SalesAnalyzer:
     def __init__(self, bucket_name="burgertone", credentials_path=None):
@@ -28,6 +29,64 @@ class SalesAnalyzer:
         self._historical_data_cache = None
         self._last_cache_time = None
         self._cache_expiry = timedelta(hours=6)  # Refresh cache every 6 hours
+        
+    def _standardize_item_names(self, df):
+        """Standardize item names to improve data consistency"""
+        print("Standardizing item names...")
+        
+        # Create a copy to avoid modifying the original
+        standardized_df = df.copy()
+        
+        # Dictionary mapping various item names to their standardized version
+        item_mappings = {
+            # Classic variations
+            'classic': 'Classic',
+            'clssic combo': 'Classic',
+            'classic meal deal': 'Classic',
+            'classic combo': 'Classic',
+            'classic burger combo 1': 'Classic',
+            'classic burger': 'Classic',
+            'classic combo meal': 'Classic',
+            
+            # Add other mappings as needed
+        }
+        
+        # Function to standardize item names
+        def standardize_name(name):
+            if pd.isna(name):
+                return name
+                
+            # Convert to lowercase for case-insensitive matching
+            name_lower = str(name).lower().strip()
+            
+            # Check direct matches
+            if name_lower in item_mappings:
+                return item_mappings[name_lower]
+                
+            # Check partial matches using regex
+            for pattern, standard_name in item_mappings.items():
+                if re.search(r'\b' + re.escape(pattern) + r'\b', name_lower):
+                    return standard_name
+                    
+            # Return original name if no matches
+            return name
+            
+        # Apply standardization
+        standardized_df['original_item_name'] = standardized_df['item_name']
+        standardized_df['item_name'] = standardized_df['item_name'].apply(standardize_name)
+        
+        # Aggregate data by standardized names
+        aggregated_df = standardized_df.groupby(['date', 'item_name']).agg({
+            'quantity': 'sum',
+            'sales': 'sum',
+            'original_item_name': lambda x: ', '.join(set(x))
+        }).reset_index()
+        
+        # Log standardization results
+        print(f"Before standardization: {df['item_name'].nunique()} unique items")
+        print(f"After standardization: {aggregated_df['item_name'].nunique()} unique items")
+        
+        return aggregated_df
         
     def load_historical_data(self, force_reload=False):
         """Load all CSV files from GCS and combine them"""
@@ -73,11 +132,14 @@ class SalesAnalyzer:
         combined_df = pd.concat(dfs, ignore_index=True)
         print(f"Loaded data for {len(dfs)} days")
         
+        # Standardize item names
+        standardized_df = self._standardize_item_names(combined_df)
+        
         # Update cache
-        self._historical_data_cache = combined_df
+        self._historical_data_cache = standardized_df
         self._last_cache_time = current_time
         
-        return combined_df
+        return standardized_df
     
     def _extract_menu_items(self, df):
         """Extract menu items sales data from CSV content"""

@@ -57,7 +57,7 @@ predictor = InventoryPredictor()
 
 # Pydantic models with better type definitions
 class Prediction(BaseModel):
-    date: datetime
+    date: str  # Changed from datetime to str for consistent formatting
     predicted_quantity: int
 
 class PredictionResponse(BaseModel):
@@ -105,12 +105,20 @@ async def get_predictions(days: int = 7):
         response = []
         for item, preds in predictions.items():
             historical_avg = df[df['item_name'] == item]['quantity'].mean()
+            
+            # Ensure dates are in string format (YYYY-MM-DD)
+            formatted_predictions = []
+            for p in preds:
+                # Make sure date is a string
+                date_str = p["date"] if isinstance(p["date"], str) else p["date"].strftime('%Y-%m-%d')
+                formatted_predictions.append({
+                    "date": date_str,
+                    "predicted_quantity": p["predicted_quantity"]
+                })
+            
             response.append({
                 "item_name": item,
-                "predictions": [
-                    {"date": p["date"], "predicted_quantity": p["predicted_quantity"]} 
-                    for p in preds
-                ],
+                "predictions": formatted_predictions,
                 "historical_avg": round(historical_avg, 2)
             })
         
@@ -129,9 +137,12 @@ async def get_historical_data(item_name: str, days: Optional[int] = 30):
         # Filter data
         item_data = df[df['item_name'] == item_name].tail(days)
         
+        # Format dates as strings
+        formatted_dates = item_data['date'].dt.strftime('%Y-%m-%d').tolist()
+        
         return {
             "item_name": item_name,
-            "dates": item_data['date'].dt.strftime('%Y-%m-%d').tolist(),
+            "dates": formatted_dates,
             "quantities": item_data['quantity'].tolist(),
             "sales": item_data['sales'].tolist()
         }
